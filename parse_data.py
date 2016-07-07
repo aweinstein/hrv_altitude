@@ -1,5 +1,7 @@
 import glob
 import os
+from itertools import product
+import numpy as np
 import pandas as pd
 
 import sp
@@ -65,7 +67,7 @@ def more_than_one_var():
                                       parse_dates=True,
                                       converters={1:time_to_sec})
 
-if __name__ == '__main__':
+def parse_raw_data():
     dfs = []
     for dir_name in dir_subject:
         height = int(dir_name[-2])
@@ -88,3 +90,13 @@ if __name__ == '__main__':
 
     hrv = pd.concat(dfs)
     hrv.to_pickle('dfs/hrv.pkl')
+
+def RR_for_kubios(hrv):
+    subjects = hrv['subject'].unique()
+    heights = hrv['height'].unique()
+    hrv = hrv.set_index(['subject', 'height']).sort_index()
+    for subject, height in product(subjects.tolist(), heights.tolist()):
+        RR = hrv.loc[(subject, height)]['RR'].as_matrix()
+        fn = 'RR_for_kubios/RR_{}_{}.txt'.format(subject, height)
+        np.savetxt(fn, RR, fmt='%f')
+        print('RR saved in', fn)
