@@ -1,5 +1,5 @@
 import glob
-import path
+import os
 import pandas as pd
 
 import sp
@@ -15,7 +15,9 @@ prefixs = ('ZEPECG',   # ECG
            'ZEPGPAST', # Skin Temperature °C
        )
 
-dir_data = ( '01HRV0410',
+dir_data = 'raw_data'
+
+dir_subject = ( '01HRV0410',
              '01HRV1640',
              '02HRV0410',
              '02HRV2640',
@@ -65,10 +67,11 @@ def more_than_one_var():
 
 if __name__ == '__main__':
     dfs = []
-    for dir_name in dir_data:
+    for dir_name in dir_subject:
         height = int(dir_name[-2])
         subject = int(dir_name[:2])
-        fn_rr = glob.glob(path.path.joinpath(dir_name, 'ZEPRTRAD*.csv'))[0]
+        path = os.path.join(dir_data, dir_name, 'ZEPRTRAD*.csv')
+        fn_rr = glob.glob(path)[0]
         print('Parsing subject {:2} at height {}'.format(subject, height))
         df = pd.read_csv(fn_rr, header=None, usecols=[1,2],
                          names=['ts', 'RR'],
