@@ -1,3 +1,4 @@
+from collections import namedtuple
 from itertools import product
 import numpy as np
 import pandas as pd
@@ -100,6 +101,12 @@ def extract_segment(hrv):
     return hrv_five_min
 
 
+FD = namedtuple('FD', ['peak_VLF', 'peak_LF', 'peak_HF',
+                       'power_VLF', 'power_LF', 'power_HF', 'power_LFHF',
+                        'pcpower_VLF', 'pcpower_LF', 'pcpower_HF',
+                        'nupower_LF', 'nupower_HF'
+                   ])
+
 def fd_metrics(time, RR):
     """Compute frequency domain metrics.
 
@@ -114,7 +121,7 @@ def fd_metrics(time, RR):
     fs = 1
     t = np.arange(0, 300, 1/fs)
     RR = f_interp(t)
-    f, Pxx_den = welch(RR, fs, nperseg=128, detrend='linear')
+    f, Pxx_den = welch(RR, fs, nperseg=256, detrend='linear')
 
     VLF, LF, HF = 0.04, 0.15, 0.4
 
@@ -135,8 +142,24 @@ def fd_metrics(time, RR):
     Ptot_VLF = P_VLF.sum() * df * 1e6
     Ptot_LF = P_LF.sum() * df * 1e6
     Ptot_HF = P_HF.sum() * df * 1e6
+    lfhf = Ptot_LF / Ptot_HF
 
-    return Ptot_VLF, Ptot_LF, Ptot_HF
+    # in percent power
+    total = Ptot_VLF + Ptot_LF + Ptot_HF
+    pc_VLF = Ptot_VLF / total * 100
+    pc_LF = Ptot_LF / total * 100
+    pc_HF = Ptot_HF / total * 100
+
+    # in normalized units
+    total -= Ptot_VLF
+    nu_LF = Ptot_LF / total * 100
+    nu_HF = Ptot_HF / total * 100
+
+    return FD(peak_VLF=fmax_VLF, peak_LF=fmax_LF, peak_HF=fmax_HF,
+              power_VLF=Ptot_VLF, power_LF=Ptot_LF, power_HF=Ptot_HF,
+              power_LFHF=lfhf,
+              pcpower_VLF=pc_VLF, pcpower_LF=pc_LF, pcpower_HF=pc_HF,
+              nupower_LF=nu_LF, nupower_HF=nu_HF)
 
 
 def compute_metrics(hrv):
@@ -175,7 +198,7 @@ if __name__ == '__main__':
     time = hrv['time'].as_matrix()
     RR = hrv['RR'].as_matrix() / 1000
 
-    Ptot_VLF, Ptot_LF, Ptot_HF = fd_metrics(time, RR)
+    fd = fd_metrics(time, RR)
 
     # import matplotlib.pyplot as plt
     # plt.close('all')
