@@ -76,6 +76,10 @@ def remove_outliers_all(hrv, verbose=False):
 
 
 def extract_segment(hrv):
+    """Extract a 5 minutes segment of HRV data.
+
+    The segment is extracted from the middle of the time series.
+    """
     hrv = hrv.copy()
     subjects = hrv['subject'].unique()
     heights = hrv['height'].unique()
@@ -106,7 +110,6 @@ FD = namedtuple('FD', ['peak_VLF', 'peak_LF', 'peak_HF',
                         'pcpower_VLF', 'pcpower_LF', 'pcpower_HF',
                         'nupower_LF', 'nupower_HF'
                    ])
-
 def fd_metrics(time, RR):
     """Compute frequency domain metrics.
 
@@ -116,6 +119,11 @@ def fd_metrics(time, RR):
         Time vector with the timestamp of the R wave.
     RR : ndarray
         Vector with the RR intervals.
+
+    Returns
+    -------
+    FD
+        namedtuple with all the metrics.
     """
     f_interp = interp1d(time, RR, 'cubic')
     fs = 1
