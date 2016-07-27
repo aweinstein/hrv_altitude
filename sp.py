@@ -206,12 +206,12 @@ def compute_metrics(hrv):
                                        names=['subject', 'height'])
     data = np.column_stack((mean_RR, mean_HR, SDNNs, RMSSDs,
                             peak_VLF, peak_LF, peak_HF,
-                            power_VLF, power_LF, power_HF,
+                            power_VLF, power_LF, power_HF, power_LFHF,
                             pcpower_VLF, pcpower_LF, pcpower_HF,
                             nupower_LF, nupower_HF))
     cols = ['meanRR', 'meanHR', 'SDNN', 'RMSSD',
             'peak_VLF', 'peak_LF', 'peak_HF',
-            'power_VLF', 'power_LF', 'power_HF',
+            'power_VLF', 'power_LF', 'power_HF', 'power_LFHF',
             'pcpower_VLF', 'pcpower_LF', 'pcpower_HF',
             'nupower_LF', 'nupower_HF']
     df = pd.DataFrame(data, index=index, columns=cols)
