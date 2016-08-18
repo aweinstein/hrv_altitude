@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from scipy import stats
 import pandas as pd
 
 import sp
@@ -26,5 +27,28 @@ def plot_all():
     plt.savefig('figures/hr_5min.png')
     plt.show()
 
+def run_test(metrics, var, test_fun):
+
+    var_1 = metrics.loc[metrics['height']==1, var]
+    var_2 = metrics.loc[metrics['height']==4, var]
+
+    _, p = test_fun(var_1, var_2)
+
+    return p
+
 if __name__ == '__main__':
-    plot_all()
+    #plot_all()
+    #run_stats()
+    metrics = pd.read_pickle('dfs/metrics.pkl').reset_index()
+    cols = metrics.columns[2:]
+
+    ps_rel = [run_test(metrics, col, stats.ttest_rel) for col in cols]
+    tests_rel = pd.DataFrame(ps_rel, cols, ['p-value'])
+
+    ps_ind = [run_test(metrics, col, stats.ttest_ind) for col in cols]
+    tests_ind = pd.DataFrame(ps_ind, cols, ['p-value'])
+
+    print('Independent t-test')
+    print(tests_ind)
+    print('\nRelative t-test')
+    print(tests_rel)
