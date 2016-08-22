@@ -110,6 +110,16 @@ FD = namedtuple('FD', ['peak_VLF', 'peak_LF', 'peak_HF',
                         'pcpower_VLF', 'pcpower_LF', 'pcpower_HF',
                         'nupower_LF', 'nupower_HF'
                    ])
+
+def power_spectrum(time, RR):
+    f_interp = interp1d(time, RR, 'cubic')
+    fs = 1
+    t = np.arange(0, 300, 1/fs)
+    RR = f_interp(t)
+    f, Pxx_den = welch(RR, fs, nperseg=256, detrend='linear')
+
+    return f, Pxx_den
+
 def fd_metrics(time, RR):
     """Compute frequency domain metrics.
 
@@ -125,11 +135,13 @@ def fd_metrics(time, RR):
     FD
         namedtuple with all the metrics.
     """
-    f_interp = interp1d(time, RR, 'cubic')
-    fs = 1
-    t = np.arange(0, 300, 1/fs)
-    RR = f_interp(t)
-    f, Pxx_den = welch(RR, fs, nperseg=256, detrend='linear')
+    # f_interp = interp1d(time, RR, 'cubic')
+    # fs = 1
+    # t = np.arange(0, 300, 1/fs)
+    # RR = f_interp(t)
+    # f, Pxx_den = welch(RR, fs, nperseg=256, detrend='linear')
+
+    f, Pxx_den = power_spectrum(time, RR)
 
     VLF, LF, HF = 0.04, 0.15, 0.4
 
