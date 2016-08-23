@@ -13,19 +13,24 @@ def plot_all():
     plt.close('all')
     vis.plot_RR(hrv)
     plt.savefig('figures/rr_raw.png')
+    plt.savefig('figures/rr_raw.pdf')
 
     vis.plot_RR(hrv_filtered)
     plt.savefig('figures/rr_filtered.png')
+    plt.savefig('figures/rr_filtered.pdf')
 
     vis.plot_HR(hrv_filtered)
     plt.savefig('figures/hr_filtered.png')
+    plt.savefig('figures/hr_filtered.pdf')
 
     vis.plot_RR(hrv_5m)
     plt.savefig('figures/rr_5min.png')
+    plt.savefig('figures/rr_5min.pdf')
 
     vis.plot_HR(hrv_5m)
     plt.savefig('figures/hr_5min.png')
-    plt.show()
+    plt.savefig('figures/hr_5min.pdf')
+
 
 def run_test(metrics, var, test_fun):
 
