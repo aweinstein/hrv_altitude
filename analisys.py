@@ -11,23 +11,30 @@ def plot_all():
     hrv_5m = sp.extract_segment(hrv_filtered)
 
     plt.close('all')
-    vis.plot_RR(hrv)
+    g = vis.plot_RR(hrv)
+    g.set(xlim=(0, hrv['time'].max()))
     plt.savefig('figures/rr_raw.png')
     plt.savefig('figures/rr_raw.pdf')
 
-    vis.plot_RR(hrv_filtered)
+    tmax = hrv_filtered['time'].max()
+    g = vis.plot_RR(hrv_filtered)
+    g.set(xlim=(0, tmax))
     plt.savefig('figures/rr_filtered.png')
     plt.savefig('figures/rr_filtered.pdf')
 
-    vis.plot_HR(hrv_filtered)
+    g = vis.plot_HR(hrv_filtered)
+    g.set(xlim=(0, tmax))
     plt.savefig('figures/hr_filtered.png')
     plt.savefig('figures/hr_filtered.pdf')
 
-    vis.plot_RR(hrv_5m)
+    tmax = hrv_5m['time'].max()
+    g = vis.plot_RR(hrv_5m)
+    g.set(xlim=(0, tmax))
     plt.savefig('figures/rr_5min.png')
     plt.savefig('figures/rr_5min.pdf')
 
-    vis.plot_HR(hrv_5m)
+    g = vis.plot_HR(hrv_5m)
+    g.set(xlim=(0, tmax))
     plt.savefig('figures/hr_5min.png')
     plt.savefig('figures/hr_5min.pdf')
 
@@ -41,9 +48,7 @@ def run_test(metrics, var, test_fun):
 
     return p
 
-if __name__ == '__main__':
-    #plot_all()
-    #run_stats()
+def run_statistical_test():
     metrics = pd.read_pickle('dfs/metrics.pkl').reset_index()
     cols = metrics.columns[2:]
 
@@ -57,3 +62,6 @@ if __name__ == '__main__':
     print(tests_ind)
     print('\nRelative t-test')
     print(tests_rel)
+
+if __name__ == '__main__':
+    run_statistical_test()
