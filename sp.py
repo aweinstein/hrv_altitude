@@ -268,16 +268,36 @@ def run_compute_metrics():
 
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
-    # compare spectrum of subject 1 and 4
+    # Compare spectrum of subject 1 and 4
     spectrum = pd.read_pickle('dfs/spectrums.pkl')
     spectrum = spectrum.set_index(['subject', 'height']).sort_index()
+    hrv_5m = pd.read_pickle('dfs/hrv_5m.pkl')
+    hrv_5m = hrv_5m.set_index(['subject', 'height']).sort_index()
 
+    # Data for subject 1
     f1 = spectrum.loc[(1,1)]['f'].as_matrix()
     P1 = spectrum.loc[(1,1)]['Pxx'].as_matrix()
+    t1 = hrv_5m.loc[(1,1)]['time'].as_matrix()
+    RR1 = hrv_5m.loc[(1,1)]['RR'].as_matrix()
+
+    # Data for subject 4
     f4 = spectrum.loc[(4,1)]['f'].as_matrix()
     P4= spectrum.loc[(4,1)]['Pxx'].as_matrix()
+    t4 = hrv_5m.loc[(4,1)]['time'].as_matrix()
+    RR4 = hrv_5m.loc[(4,1)]['RR'].as_matrix()
+
     plt.close('all')
-    _, [ax1, ax2] = plt.subplots(2, 1, sharex=True)
-    ax1.plot(f1, P1)
-    ax2.plot(f4, P4)
+    _, axs = plt.subplots(2, 2)
+    axs[0,0].plot(t1, RR1)
+    axs[0,0].set(xlabel='time [s]', ylabel='RR [s]', title='subject 1')
+
+    axs[0,1].plot(t4, RR4)
+    axs[0,1].set(xlabel='time [s]', title='subject 4')
+
+    axs[1,0].plot(f1, P1)
+    axs[1,0].set(xlabel='f [Hz]', ylabel='P[s^2/Hz]')
+
+    axs[1,1].plot(f4, P4)
+    axs[1,1].set(xlabel='f [Hz]')
+
     plt.show()
