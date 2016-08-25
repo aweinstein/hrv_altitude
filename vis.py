@@ -26,27 +26,16 @@ def plot_spectrum(sp):
     VLF, LF, HF = 0.04, 0.15, 0.4
     grid = sns.FacetGrid(sp, col='subject', hue='height', col_wrap=4,
                          legend_out=False)
-    grid.map(plt.plot, 'f', 'Pxx')
-    grid.set_axis_labels('frquency [Hz]', 'Pxx [s**2/Hz]')
+    grid.map(plt.semilogy, 'f', 'Pxx')
+    #grid.map(plt.plot, 'f', 'Pxx')
+    grid.set_axis_labels('frquency [Hz]', 'P [s^2/Hz]')
     grid.add_legend()
-    #grid.map(plt.fill_between, 'f', 'Pxx', alpha=0.2)
+    grid.set(xlim=(VLF, HF), ylim=(0,0.15))
+
 
     for ax in grid.axes:
-        ax.axvspan(VLF, LF, facecolor='b', alpha=0.2)
-        ax.axvspan(LF, HF, facecolor='r', alpha=0.2)
-
-# - Por que las amplitudes de algunos sujetos son tan altos?
-#  metrics.loc[metrics['power_LFHF']>5][['subject', 'height', 'power_LFHF']]
-
-#     subject  height  power_LFHF
-# 8         5       1    9.716566
-# 9         5       4   14.064073
-# 15        8       4    5.110905
-# 19       10       4    9.434847
-# 20       11       1   17.123414
-# 21       11       4   28.144739
-# 22       12       1   11.633706
-# 23       12       4   30.499976
+        ax.axvspan(VLF, LF, facecolor='b', alpha=0.1)
+        ax.axvspan(LF, HF, facecolor='r', alpha=0.1)
 
 def pair_plot(metrics):
 
