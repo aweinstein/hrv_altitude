@@ -152,7 +152,7 @@ FD = namedtuple('FD', ['peak_VLF', 'peak_LF', 'peak_HF',
                         'nupower_LF', 'nupower_HF'
                    ])
 
-def fd_metrics(time, RR):
+def fd_metrics(time, RR, correct=False):
     """Compute frequency domain metrics.
 
     Parameters
@@ -160,13 +160,25 @@ def fd_metrics(time, RR):
     time : ndarray
         Time vector with the timestamp of the R wave.
     RR : ndarray
-        Vector with the RR intervals.
+        Vector with the RR intervals. The unit of the intervals must be
+    seconds.
+    correct : bool
+        If true, divide by mean value of RR before computing the
+        spectrum. Default to False.
 
     Returns
     -------
     FD
         namedtuple with all the metrics.
+
+    Notes
+    -----
+    See J. Sacha, "Why should one normalize heart rate variability with respect
+    to average heart rate", Frontiers in Physiology
     """
+    if correct:
+        RR /= RR.mean()
+
     f, Pxx_den = power_spectrum(time, RR)
 
     VLF, LF, HF = 0.04, 0.15, 0.4
@@ -213,6 +225,7 @@ def compute_metrics(hrv):
     SDNNs, RMSSDs, mean_RR, mean_HR = [], [], [], []
     peak_VLF, peak_LF, peak_HF = [], [], []
     power_VLF, power_LF, power_HF, power_LFHF = [], [], [], []
+    power_VLF_norm, power_LF_norm, power_HF_norm = [], [], []
     pcpower_VLF, pcpower_LF, pcpower_HF = [], [], []
     nupower_LF, nupower_HF = [], []
     hrv = hrv.set_index(['subject', 'height']).sort_index()
@@ -239,18 +252,24 @@ def compute_metrics(hrv):
         pcpower_HF.append(fd.pcpower_HF)
         nupower_LF.append(fd.nupower_LF)
         nupower_HF.append(fd.nupower_HF)
+        fd = fd_metrics(time, RR / 1000, True)
+        power_VLF_norm.append(fd.power_VLF)
+        power_LF_norm.append(fd.power_LF)
+        power_HF_norm.append(fd.power_HF)
     index = pd.MultiIndex.from_product([subjects, heights],
                                        names=['subject', 'height'])
     data = np.column_stack((mean_RR, mean_HR, SDNNs, RMSSDs,
                             peak_VLF, peak_LF, peak_HF,
                             power_VLF, power_LF, power_HF, power_LFHF,
                             pcpower_VLF, pcpower_LF, pcpower_HF,
-                            nupower_LF, nupower_HF))
+                            nupower_LF, nupower_HF,
+                            power_VLF_norm, power_LF_norm, power_HF_norm))
     cols = ['meanRR', 'meanHR', 'SDNN', 'RMSSD',
             'peak_VLF', 'peak_LF', 'peak_HF',
             'power_VLF', 'power_LF', 'power_HF', 'power_LFHF',
             'pcpower_VLF', 'pcpower_LF', 'pcpower_HF',
-            'nupower_LF', 'nupower_HF']
+            'nupower_LF', 'nupower_HF',
+            'power_VLF_norm', 'power_LF_norm', 'power_HF_norm']
     df = pd.DataFrame(data, index=index, columns=cols)
     return df
 
@@ -265,6 +284,7 @@ def run_compute_metrics():
     metrics = compute_metrics(hrv_5m)
     metrics.to_pickle('dfs/metrics.pkl')
     metrics.to_excel('dfs/metrics.xlsx')
+    return metrics
 
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
